@@ -169,9 +169,7 @@ interface SkaterComparisons{
 			if(s2.getGoals() - s1.getGoals() != 0){
 				return s2.getGoals() - s1.getGoals();	
 			}
-			else{
-				return s1.getLastName().compareTo(s2.getLastName());	
-			}
+			return s1.getLastName().compareTo(s2.getLastName());	
 		}
 		catch(ClassCastException cce){
 			System.out.println("Exception: " + cce);	
@@ -187,9 +185,7 @@ interface Lambdas{
 		if(s == 0){
 			return (float)0;
 		}
-		else{
-			return ((float)g / (float)s)*100;
-		}		
+		return ((float)g / (float)s)*100;		
 	};
 	
 	//the BiConsumer Functional Interface accepts/manipulates two parameters, but does not return anything
@@ -204,9 +200,7 @@ interface Lambdas{
 		if(!hp.getPosition().equals("Goalie")){
 			return true;	
 		}
-		else{
-			return false;	
-		}
+		return false;	
 	};
 	
 	//this method accepts a HockeyPlayer parameter and returns true if the HockeyPlayer wears an even-numbered jersey
@@ -214,9 +208,7 @@ interface Lambdas{
 		if(hp.getJersey() % 2 == 0){
 			return true;	
 		}
-		else{
-			return false;	
-		}
+		return false;	
 	};
 	
 	//the Supplier Functional Interface may be used to generate or supply values without taking any input
@@ -236,7 +228,7 @@ public class StreamV2{
 	private static void printSKShootPercent(HockeyPlayer hp){
 		hp.setTeam(Lambdas.assignTeam.get()); //calls Supplier
 		if(Lambdas.filterOutGoalies.test(hp)){ //calls Predicate
-			Skater s = (Skater)hp;
+			Skater s = (Skater)hp; //narrowing cast of HockeyPlayer object to a Skater object
 			Float calcSP = Lambdas.shootPer.apply(s.getGoals(), s.getShots()); //calls BiFunction
 			Lambdas.setShootPer.accept(calcSP, s); //calls BiConsumer
 			System.out.println(String.format("| %-4s | %-15s | %-4s | %-7s | %-15s |", s.getTeam(), s.getLastName(), s.getJersey(), s.getGoals() , s.getShootingPercent()));
@@ -246,8 +238,8 @@ public class StreamV2{
 	//main method that prints (to console) the sorted stat chart of the current roster
 	public static void main(String... args){
 		Roster r = new Roster();
-		ArrayList<HockeyPlayer> team = new ArrayList<>();
-		for(int i = 0; i< r.getRosterCount(); i++){
+		ArrayList<HockeyPlayer> team = new ArrayList<>(); //initialize an ArrayList 
+		for(int i = 0; i< r.getRosterCount(); i++){	  //with HockeyPlayer objects of current roster
 			team.add(r.getHockeyPlayer(i));
 		}
 		
@@ -255,10 +247,10 @@ public class StreamV2{
 		System.out.println(String.format("| %-4s | %-15s | %-4s | %-7s | %-15s |", "Team", "Player", "#", "Goals", "Shooting %"));
 		System.out.println("---------------------------------------------------------------");
 		team.stream()
-		.filter(hp -> Lambdas.filterOutGoalies.test(hp)) //calls Predicate
-		.filter(hp -> Lambdas.evenNumberPlayers.test(hp)) //calls Predicate
+		.filter(Lambdas.filterOutGoalies :: test) //calls Predicate w/a method reference
+		.filter(Lambdas.evenNumberPlayers :: test) //calls Predicate w/a method reference
 		.sorted(byGoalsThenName) //sort stream with a Comparator!
-		.forEach(hp -> printSKShootPercent(hp));
+		.forEach(StreamV2 :: printSKShootPercent); //calls printSKShootPercent with a method reference
 		System.out.println("\n****************************************************************");		
 	}
 }
