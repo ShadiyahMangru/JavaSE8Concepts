@@ -106,41 +106,29 @@ class Roster{
 			//.txt file that stores data needed for calculations
 			File file = new File("C:\\Users\\593476\\Desktop\\Java Programs\\roster2018Goals_Shots_Stats2_19_2019.txt"); 
     			Scanner sc = new Scanner(file); 
-    			int counter = 0;
-    			String name = "";
-    			String position = "";
     			int jersey = 0;
     			int goals = 0;
     			int shots = 0;
+    			String [] gs = {"", ""};
     			while (sc.hasNextLine()) {
-    				String getData = sc.nextLine();
-    				if(counter==0){
-    					name = getData.trim();
-    				}
-    				else if(counter==1){
-    					position = getData.trim();	
-    				}
-    				else if(counter==2){
-    					jersey=Integer.parseInt(getData.trim());	
-    				}
-    				else if(counter>=3 && (!getData.equals("*")) && !position.equals("Goalie")){
-    					String [] gs = getData.trim().split(":");
+    				String name = sc.nextLine().trim();
+    				String position  = sc.nextLine().trim();
+    				jersey = Integer.parseInt(sc.nextLine().trim());
+    				if(!position.equals("Goalie")){
+    					gs = sc.nextLine().trim().split(":");
     					goals = Integer.parseInt(gs[0]);
     					shots = Integer.parseInt(gs[1]);
+    					HockeyPlayer hp = new HockeyPlayer(name, position, jersey);
+    					Skater s = new Skater(hp, goals, shots);
+    					roster.add(s);
+    					sc.nextLine();   //skip *
 				}
-				counter++;
-    				if(getData.equals("*")){
-    					if(position.equals("Goalie")){
-    						HockeyPlayer hp = new HockeyPlayer(name, position, jersey);
-    						roster.add(hp);
-    					}
-    					else{
-    						HockeyPlayer hp = new HockeyPlayer(name, position, jersey);
-    						Skater s = new Skater(hp, goals, shots);
-    						roster.add(s);
-    					}
-    					counter = 0;
-    				}
+				else{
+					HockeyPlayer hp = new HockeyPlayer(name, position, jersey);
+    					roster.add(hp);
+    					sc.nextLine();	 //skip 0:0 for Goalies
+					sc.nextLine();   //skip *
+				}
     			}
     		}
     		catch(Exception e){
