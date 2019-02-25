@@ -145,7 +145,7 @@ class Roster{
 		roster = new ArrayList<>();
 		try{
 			//.txt file that stores data needed for calculations
-			File file = new File("C:\\Users\\593476\\Desktop\\Java Programs\\roster2018Goals_Shots_Stats2_20_2019.txt"); 
+			File file = new File("C:\\Users\\593476\\Desktop\\Java Programs\\roster2018Goals_Shots_Stats2_24_2019.txt"); 
     			Scanner sc = new Scanner(file); 
     			int jersey = 0;
     			String [] goalsShotsArray = {"", ""};
@@ -156,16 +156,31 @@ class Roster{
     				jersey = Integer.parseInt(sc.nextLine().trim());
     				HockeyPlayer hp = new HockeyPlayer(name, position, jersey);
     				if(!position.equals("Goalie")){
-    					goalsShotsArray = sc.nextLine().trim().split(":"); //goals at gs[0] and shots at gs[1]
-    					Skater s = new Skater(hp, Integer.parseInt(goalsShotsArray[0]), Integer.parseInt(goalsShotsArray[1]));
-    					roster.add(s);
-    					sc.nextLine();   //skip *
+    					try{ //exception handling of ArrayIndexOutOfBoundsException when colon is missing from input file
+						goalsShotsArray = sc.nextLine().trim().split(":"); //goals at gs[0] and shots at gs[1]
+						Skater s = new Skater(hp, Integer.parseInt(goalsShotsArray[0]), Integer.parseInt(goalsShotsArray[1]));
+						roster.add(s);
+    					}
+    					catch(Exception e){
+    						System.out.println("Exception: " + e);	
+    						Skater s = new Skater(hp, -1, -1);
+    						roster.add(s);
+    					}
+    					
+					sc.nextLine();   //skip *
 				}
 				else{
-					savesShotsAgArray = sc.nextLine().trim().split(":"); //saves at ssa[0] and shotsAgainst at ssa[1]
-    					Goalie g = new Goalie(hp, Integer.parseInt(savesShotsAgArray[0]), Integer.parseInt(savesShotsAgArray[1]));
-    					roster.add(g);
-					sc.nextLine();   //skip *
+					try{ //exception handling of ArrayIndexOutOfBoundsException when colon is missing from input file
+						savesShotsAgArray = sc.nextLine().trim().split(":"); //saves at ssa[0] and shotsAgainst at ssa[1]
+						Goalie g = new Goalie(hp, Integer.parseInt(savesShotsAgArray[0]), Integer.parseInt(savesShotsAgArray[1]));
+    						roster.add(g);
+					}
+					catch(Exception e){
+						System.out.println("Exception: " + e);	
+						Goalie g = new Goalie(hp, -1, -1);
+						roster.add(g);
+					}
+    					sc.nextLine();   //skip *
 				}
     			}
     		}
@@ -284,7 +299,7 @@ public class Stream{
 	
 	//this method relies on Supplier F.I. to set team field of hockeyplayer object, Predicate F.I. to filter out non-goalies, 
 	//BiFunction F.I. to calculate goalie's save percentage, and BiConsumer F.I. 
-	//to set the savePercent field of the skater object (in case this value needed later).
+	//to set the savePercent field of the goalie object (in case this value needed later).
 	private static void printGSavePercent(HockeyPlayer hp){
 		hp.setTeam(Lambdas.assignTeam.get()); //calls Supplier
 		if(Lambdas.keepGoalies.test(hp)){ //calls Predicate
@@ -303,7 +318,7 @@ public class Stream{
 			team.add(r.getHockeyPlayer(i));
 		}
 		
-		System.out.println("\n******* Goals Scored By WSH Non-Goalies Who Wear Even-Numbered Jerseys (since 2/20/2019) *******\n");
+		System.out.println("\n******* Goals Scored By WSH Non-Goalies Who Wear Even-Numbered Jerseys (since 2/24/2019) *******\n");
 		System.out.println(String.format("| %-4s | %-15s | %-4s | %-7s | %-15s |", "Team", "Player", "#", "Goals", "Shooting %"));
 		System.out.println("---------------------------------------------------------------");
 		team.stream()
@@ -313,12 +328,12 @@ public class Stream{
 		.forEach(Stream :: printSKShootPercent); //calls printSKShootPercent with a method reference
 		System.out.println("\n****************************************************************");	
 		
-		System.out.println("\n***************** Save Percentages of WSH Goalies (since 2/20/2019) *****************\n");
+		System.out.println("\n***************** Save Percentages of WSH Goalies (since 2/24/2019) *****************\n");
 		System.out.println(String.format("| %-4s | %-15s | %-4s | %-15s | %-7s | %-15s |", "Team", "Player", "#", "Shots Against", "Saves", "Save %"));
 		System.out.println("-------------------------------------------------------------------------------");
 		team.stream()
 		.filter(Lambdas.keepGoalies :: test) //calls Predicate w/a method reference
-		.forEach(Stream :: printGSavePercent); //calls printSKShootPercent with a method reference
+		.forEach(Stream :: printGSavePercent); //calls printGSavePercent with a method reference
 		System.out.println("\n**********************************************************************************");		
 	}
 }
