@@ -134,56 +134,43 @@ class Goalie extends HockeyPlayer{
 class Roster{
 	//fields
 	private ArrayList<HockeyPlayer> roster;
+	private Scanner sc;
 	
 	//constructor
-	public Roster(){	
+	public Roster(){
+		setSc();
 		setRoster();
 	}
 	
-	//setter
-	public void setRoster(){
-		roster = new ArrayList<>();
+	//setters
+	public void setSc(){
 		try{
 			//.txt file that stores data needed for calculations
 			File file = new File("C:\\Users\\593476\\Desktop\\Java Programs\\roster2018Goals_Shots_Stats2_24_2019.txt"); 
-    			Scanner sc = new Scanner(file); 
-    			int jersey = 0;
-    			String [] goalsShotsArray = {"", ""};
-    			String [] savesShotsAgArray = {"", ""};
+    			sc = new Scanner(file); 
+		}
+		catch(IOException io){ //exception handling when unable to access input file specified
+    			System.out.println("Exception: " + io);	
+    		}
+    		catch(Exception e){
+    			System.out.println("Exception: " + e);
+    		}
+	}
+	
+	public void setRoster(){
+		roster = new ArrayList<>();
+		try{
     			while (sc.hasNextLine()) {
-    				String name = sc.nextLine().trim();
-    				String position  = sc.nextLine().trim();
-    				jersey = Integer.parseInt(sc.nextLine().trim());
-    				HockeyPlayer hp = new HockeyPlayer(name, position, jersey);
-    				if(!position.equals("Goalie")){
-    					try{ //exception handling of ArrayIndexOutOfBoundsException when colon is missing from input file
-						goalsShotsArray = sc.nextLine().trim().split(":"); //goals at gs[0] and shots at gs[1]
-						Skater s = new Skater(hp, Integer.parseInt(goalsShotsArray[0]), Integer.parseInt(goalsShotsArray[1]));
-						roster.add(s);
-    					}
-    					catch(Exception e){
-    						System.out.println("Exception: " + e);	
-    						Skater s = new Skater(hp, -1, -1);
-    						roster.add(s);
-    					}
-    					
-					sc.nextLine();   //skip *
+    				HockeyPlayer hp = readInHP();
+    				if(!hp.getPosition().equals("Goalie")){
+    					addSkaterToRoster(hp);
 				}
 				else{
-					try{ //exception handling of ArrayIndexOutOfBoundsException when colon is missing from input file
-						savesShotsAgArray = sc.nextLine().trim().split(":"); //saves at ssa[0] and shotsAgainst at ssa[1]
-						Goalie g = new Goalie(hp, Integer.parseInt(savesShotsAgArray[0]), Integer.parseInt(savesShotsAgArray[1]));
-    						roster.add(g);
-					}
-					catch(Exception e){
-						System.out.println("Exception: " + e);	
-						Goalie g = new Goalie(hp, -1, -1);
-						roster.add(g);
-					}
-    					sc.nextLine();   //skip *
+					addGoalieToRoster(hp);
 				}
+				sc.nextLine();   //skip *
     			}
-    		}
+    		}	
     		catch(Exception e){
     			System.out.println("Exception: " + e);
     		}
@@ -196,6 +183,44 @@ class Roster{
 	
 	public HockeyPlayer getHockeyPlayer(int index){
 		return roster.get(index);	
+	}
+	
+	//utility methods
+	//this helper method reads in the name, position, and jersey fields of a HockeyPlayer object 
+	//and creates (and returns) this object with these fields initialized
+	private HockeyPlayer readInHP(){
+		String name = sc.nextLine().trim();
+    		String position  = sc.nextLine().trim();
+    		int jersey = Integer.parseInt(sc.nextLine().trim());
+    		return new HockeyPlayer(name, position, jersey);
+	}
+	
+	private void addSkaterToRoster(HockeyPlayer hp){
+		try{ //exception handling of ArrayIndexOutOfBoundsException when colon is missing from input file
+			String [] goalsShotsArray = {"", ""};
+			goalsShotsArray = sc.nextLine().trim().split(":"); //goals at gs[0] and shots at gs[1]
+			Skater s = new Skater(hp, Integer.parseInt(goalsShotsArray[0]), Integer.parseInt(goalsShotsArray[1]));
+			roster.add(s);
+    		}
+    		catch(Exception e){
+    			System.out.println("Exception: " + e);	
+    			Skater s = new Skater(hp, -1, -1);
+    			roster.add(s);
+    		}
+	}
+	
+	private void addGoalieToRoster(HockeyPlayer hp){
+		try{ //exception handling of ArrayIndexOutOfBoundsException when colon is missing from input file
+			String [] savesShotsAgArray = {"", ""};
+			savesShotsAgArray = sc.nextLine().trim().split(":"); //saves at ssa[0] and shotsAgainst at ssa[1]
+			Goalie g = new Goalie(hp, Integer.parseInt(savesShotsAgArray[0]), Integer.parseInt(savesShotsAgArray[1]));
+    			roster.add(g);
+		}
+		catch(Exception e){
+			System.out.println("Exception: " + e);	
+			Goalie g = new Goalie(hp, -1, -1);
+			roster.add(g);
+		}
 	}
 }
 
